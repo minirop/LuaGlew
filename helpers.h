@@ -53,7 +53,7 @@ LUA_FROM_XXX(int, integer) // GLint, GLsizei
 LUA_FROM_XXX(short, integer) // GLshort
 LUA_FROM_XXX(signed char, integer) // GLbyte
 
-#define CREATE_ARRAY_FROM_LUA(type, name, index) \
+#define CREATE_ARRAY(type, name, index) \
 GLsizei count = luaL_len(L, index); \
 type * name = new type[count];
 
@@ -63,6 +63,14 @@ for(int i = 0;i < count;i++) \
 	lua_rawgeti(L, index, (i+1)); \
 	name[i] = lua_to ## converter(L, -1); \
 	lua_pop(L, 1); \
+}
+
+#define FILL_TABLE(name, converter) \
+for(GLsizei i = 0;i < count;i++) \
+{ \
+	lua_pushinteger(L, i+1); \
+	lua_push ## converter(L, name[i]); \
+	lua_settable(L, -3); \
 }
 
 #define GENERATE_SIGNATURE_2(func_name) \

@@ -33,27 +33,16 @@ GENERATE_VOID_FUNCTION_1(glActiveTexture, GLenum)
 GENERATE_VOID_FUNCTION_2(glAlphaFunc, GLenum, GLclampf)
 GENERATE_SIGNATURE(glAreTexturesResident)
 {
-	GLsizei count = luaL_len(L, 1);
-	GLuint * textures = new GLuint[count];
+	CREATE_ARRAY(GLuint, textures, 1)
 	GLboolean * residences = new GLboolean[count];
 	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 1, (i+1));
-		textures[i] = lua_tounsigned(L, -1);
-		lua_pop(L, 1);
-	}
+	FILL_ARRAY(textures, 1, unsigned)
 	
 	glAreTexturesResident(count, textures, residences);
 	
 	lua_newtable(L);
 	
-	for(GLsizei i = 0;i < count;i++)
-	{
-		lua_pushinteger(L, i+1); // index
-		lua_pushunsigned(L, residences[i]); // value
-		lua_settable(L, -3);
-	}
+	FILL_TABLE(residences, boolean)
 	
 	delete[] textures;
 	delete[] residences;
@@ -148,13 +137,7 @@ GENERATE_SIGNATURE(glColorPointer)
 	
 	GLsizei count = luaL_len(L, 2);
 	data = new GLfloat[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 2, (i+1));
-		data[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-	}
+	FILL_ARRAY(data, 2, number)
 	
 	glColorPointer(size, GL_FLOAT, 0, data);
 	
@@ -162,7 +145,28 @@ GENERATE_SIGNATURE(glColorPointer)
 }
 GENERATE_VOID_FUNCTION_6(glColorSubTable, GLenum, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *)
 GENERATE_VOID_FUNCTION_6(glColorTable, GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid *)
-GENERATE_NOT_IMPL_FUNCTION(glColorTableParameterfv)
+GENERATE_SIGNATURE(glColorTableParameterfv)
+{
+	static GLfloat * data = NULL;
+	delete[] data;
+	
+	if(lua_gettop(L) == 0)
+	{
+		// if no param, only free the memory if necessary
+		return 0;
+	}
+	
+	GLenum target = lua_to<GLenum>(L, 1);
+	GLenum pname = lua_to<GLenum>(L, 2);
+	
+	GLsizei count = luaL_len(L, 3);
+	data = new GLfloat[count];
+	FILL_ARRAY(data, 3, number)
+	
+	glColorTableParameterfv(target, pname, data);
+	
+	return 0;
+}
 GENERATE_VOID_FUNCTION_1(glCompileShader, GLuint)
 GENERATE_VOID_FUNCTION_7(glCompressedTexImage1D, GLenum, GLint, GLenum, GLsizei, GLint, GLsizei, const GLvoid *)
 GENERATE_VOID_FUNCTION_8(glCompressedTexImage2D, GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *)
@@ -197,15 +201,8 @@ GENERATE_SIGNATURE(glDeleteBuffers)
 	}
 	else
 	{
-		GLsizei count = luaL_len(L, 1);
-		GLuint * buffers = new GLuint[count];
-		
-		for(int i = 0;i < count;i++)
-		{
-			lua_rawgeti(L, 1, (i+1));
-			buffers[i] = lua_tounsigned(L, -1);
-			lua_pop(L, 1);
-		}
+		CREATE_ARRAY(GLuint, buffers, 1)
+		FILL_ARRAY(buffers, 1, unsigned)
 		
 		glDeleteBuffers(count, buffers);
 		delete[] buffers;
@@ -224,15 +221,8 @@ GENERATE_SIGNATURE(glDeleteQueries)
 	}
 	else
 	{
-		GLsizei count = luaL_len(L, 1);
-		GLuint * queries = new GLuint[count];
-		
-		for(int i = 0;i < count;i++)
-		{
-			lua_rawgeti(L, 1, (i+1));
-			queries[i] = lua_tounsigned(L, -1);
-			lua_pop(L, 1);
-		}
+		CREATE_ARRAY(GLuint, queries, 1)
+		FILL_ARRAY(queries, 1, unsigned)
 		
 		glDeleteQueries(count, queries);
 		delete[] queries;
@@ -250,15 +240,8 @@ GENERATE_SIGNATURE(glDeleteTextures)
 	}
 	else
 	{
-		GLsizei count = luaL_len(L, 1);
-		GLuint * textures = new GLuint[count];
-		
-		for(int i = 0;i < count;i++)
-		{
-			lua_rawgeti(L, 1, (i+1));
-			textures[i] = lua_tounsigned(L, -1);
-			lua_pop(L, 1);
-		}
+		CREATE_ARRAY(GLuint, textures, 1)
+		FILL_ARRAY(textures, 1, unsigned)
 		
 		glDeleteTextures(count, textures);
 		delete[] textures;
@@ -284,15 +267,8 @@ GENERATE_SIGNATURE(glDrawBuffers)
 	}
 	else
 	{
-		GLsizei count = luaL_len(L, 1);
-		GLuint * buffers = new GLuint[count];
-		
-		for(int i = 0;i < count;i++)
-		{
-			lua_rawgeti(L, 1, (i+1));
-			buffers[i] = lua_tounsigned(L, -1);
-			lua_pop(L, 1);
-		}
+		CREATE_ARRAY(GLuint, buffers, 1)
+		FILL_ARRAY(buffers, 1, unsigned)
 		
 		glDrawBuffers(count, buffers);
 		delete[] buffers;
@@ -304,15 +280,8 @@ GENERATE_SIGNATURE(glDrawElements)
 {
 	GLenum mode = lua_to<GLenum>(L, 1);
 	
-	GLsizei count = luaL_len(L, 2);
-	GLuint * indices = new GLuint[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 3, (i+1));
-		indices[i] = lua_tounsigned(L, -1);
-		lua_pop(L, 1);
-	}
+	CREATE_ARRAY(GLuint, indices, 2)
+	FILL_ARRAY(indices, 2, unsigned)
 	
 	glDrawElements(mode, count, GL_UNSIGNED_INT, indices);
 	delete[] indices;
@@ -325,15 +294,8 @@ GENERATE_SIGNATURE(glDrawPixels)
 	GLsizei height = lua_to<GLsizei>(L, 2);
 	GLenum format = lua_to<GLenum>(L, 3);
 	
-	GLsizei count = luaL_len(L, 4);
-	GLuint * pixels = new GLuint[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 4, (i+1));
-		pixels[i] = lua_tounsigned(L, -1);
-		lua_pop(L, 1);
-	}
+	CREATE_ARRAY(GLuint, pixels, 4)
+	FILL_ARRAY(pixels, 4, unsigned)
 	
 	glDrawPixels(width, height, format, GL_UNSIGNED_INT, pixels);
 	delete[] pixels;
@@ -346,15 +308,8 @@ GENERATE_SIGNATURE(glDrawRangeElements)
 	GLuint start = lua_to<GLuint>(L, 2);
 	GLuint end = lua_to<GLuint>(L, 3);
 	
-	GLsizei count = luaL_len(L, 4);
-	GLuint * indices = new GLuint[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 4, (i+1));
-		indices[i] = lua_tounsigned(L, -1);
-		lua_pop(L, 1);
-	}
+	CREATE_ARRAY(GLuint, indices, 4)
+	FILL_ARRAY(indices, 4, unsigned)
 	
 	glDrawRangeElements(mode, start, end, count, GL_UNSIGNED_INT, indices);
 	delete[] indices;
@@ -422,12 +377,7 @@ GENERATE_SIGNATURE(glGenBuffers)
 	{
 		lua_newtable(L);
 		
-		for(GLsizei i = 0;i < count;i++)
-		{
-			lua_pushinteger(L, i+1); // index
-			lua_pushunsigned(L, buffers[i]); // value
-			lua_settable(L, -3);
-		}
+		FILL_TABLE(buffers, unsigned)
 	}
 	
 	delete buffers;
@@ -450,12 +400,7 @@ GENERATE_SIGNATURE(glGenQueries)
 	{
 		lua_newtable(L);
 		
-		for(GLsizei i = 0;i < count;i++)
-		{
-			lua_pushinteger(L, i+1); // index
-			lua_pushunsigned(L, queries[i]); // value
-			lua_settable(L, -3);
-		}
+		FILL_TABLE(queries, unsigned)
 	}
 	
 	delete queries;
@@ -477,12 +422,7 @@ GENERATE_SIGNATURE(glGenTextures)
 	{
 		lua_newtable(L);
 		
-		for(GLsizei i = 0;i < count;i++)
-		{
-			lua_pushinteger(L, i+1); // index
-			lua_pushunsigned(L, textures[i]); // value
-			lua_settable(L, -3);
-		}
+		FILL_TABLE(textures, unsigned)
 	}
 	
 	delete textures;
@@ -643,15 +583,8 @@ GENERATE_VOID_FUNCTION(glLoadIdentity)
 GENERATE_SIGNATURE(glLoadMatrixd)
 {
 	// check count == 16
-	GLsizei count = luaL_len(L, 1);
-	GLdouble * matrix = new GLdouble[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 1, (i+1));
-		matrix[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-	}
+	CREATE_ARRAY(GLdouble, matrix, 1)
+	FILL_ARRAY(matrix, 1, number)
 	
 	glLoadMatrixd(matrix);
 	delete[] matrix;
@@ -662,15 +595,8 @@ GENERATE_VOID_FUNCTION_1(glLoadName, GLuint)
 GENERATE_SIGNATURE(glLoadTransposeMatrixd)
 {
 	// check count == 16
-	GLsizei count = luaL_len(L, 1);
-	GLdouble * matrix = new GLdouble[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 1, (i+1));
-		matrix[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-	}
+	CREATE_ARRAY(GLdouble, matrix, 1)
+	FILL_ARRAY(matrix, 1, number)
 	
 	glLoadTransposeMatrixd(matrix);
 	delete[] matrix;
@@ -775,13 +701,7 @@ GENERATE_SIGNATURE(glTexCoordPointer)
 	
 	GLsizei count = luaL_len(L, 2);
 	data = new GLfloat[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 2, (i+1));
-		data[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-	}
+	FILL_ARRAY(data, 2, number)
 	
 	glTexCoordPointer(size, GL_FLOAT, 0, data);
 	
@@ -832,13 +752,7 @@ GENERATE_SIGNATURE(glVertexAttribPointer)
 	
 	GLsizei count = luaL_len(L, 4);
 	data = new GLfloat[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 4, (i+1));
-		data[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-	}
+	FILL_ARRAY(data, 4, number)
 	
 	glVertexAttribPointer(index, size, GL_FLOAT, normalized, 0, data);
 	
@@ -859,13 +773,7 @@ GENERATE_SIGNATURE(glVertexPointer)
 	
 	GLsizei count = luaL_len(L, 2);
 	data = new GLfloat[count];
-	
-	for(int i = 0;i < count;i++)
-	{
-		lua_rawgeti(L, 2, (i+1));
-		data[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
-	}
+	FILL_ARRAY(data, 2, number)
 	
 	glVertexPointer(size, GL_FLOAT, 0, data);
 	
