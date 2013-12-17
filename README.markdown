@@ -14,7 +14,7 @@ How to build
 
 **requirements**: dynamic-build lua (Windows: like one from LuaBinaries) and glew
 
-* Windows: you can just type Make if you have all requierements
+* Windows: you can just type Make if you have all requirements
 * Linux: Compile gl.cpp with lua5.2 and glew
 
 How to use
@@ -48,6 +48,11 @@ TODO
 * finish to implement glu
 * implement glX
 * check parameter count
+* some functions like *glIndexPointer* can have parameters with multiple meanings(?), i.e.:
+```
+	If a non-zero named buffer object is bound while a color index array is specified, *pointer* is treated as a byte offset into the buffer object's data store
+```
+how to manage those things??? (i.e. *I need help*)
 
 Licence
 =======
