@@ -65,8 +65,8 @@ for(int i = 0;i < count;i++) \
 	lua_pop(L, 1); \
 }
 
-#define FILL_TABLE(name, converter) \
-for(GLsizei i = 0;i < count;i++) \
+#define FILL_TABLE(name, size, converter) \
+for(GLsizei i = 0;i < size;i++) \
 { \
 	lua_pushinteger(L, i+1); \
 	lua_push ## converter(L, name[i]); \

@@ -42,7 +42,7 @@ GENERATE_SIGNATURE(glAreTexturesResident)
 	
 	lua_newtable(L);
 	
-	FILL_TABLE(residences, boolean)
+	FILL_TABLE(residences, count, boolean)
 	
 	delete[] textures;
 	delete[] residences;
@@ -334,7 +334,20 @@ GENERATE_VOID_FUNCTION_1(glEvalPoint1, GLint)
 GENERATE_VOID_FUNCTION_2(glEvalPoint2, GLint, GLint)
 
 // F
-GENERATE_NOT_IMPL_FUNCTION(glFeedbackBuffer)
+GENERATE_SIGNATURE(glFeedbackBuffer)
+{
+	GLsizei size = lua_to<GLsizei>(L, 1);
+	GLenum type = lua_to<GLenum>(L, 2);
+	GLfloat * buffers = new GLfloat[size];
+	
+	glFeedbackBuffer(size, type, buffers);
+	
+	lua_newtable(L);
+	FILL_TABLE(buffers, size, number)
+	
+	delete[] buffers;
+	return 1;
+}
 GENERATE_VOID_FUNCTION(glFinish)
 GENERATE_VOID_FUNCTION(glFlush)
 GENERATE_VOID_FUNCTION_2(glFogf, GLenum, GLfloat)
@@ -376,8 +389,7 @@ GENERATE_SIGNATURE(glGenBuffers)
 	else
 	{
 		lua_newtable(L);
-		
-		FILL_TABLE(buffers, unsigned)
+		FILL_TABLE(buffers, count, unsigned)
 	}
 	
 	delete buffers;
@@ -399,8 +411,7 @@ GENERATE_SIGNATURE(glGenQueries)
 	else
 	{
 		lua_newtable(L);
-		
-		FILL_TABLE(queries, unsigned)
+		FILL_TABLE(queries, count, unsigned)
 	}
 	
 	delete queries;
@@ -422,7 +433,7 @@ GENERATE_SIGNATURE(glGenTextures)
 	{
 		lua_newtable(L);
 		
-		FILL_TABLE(textures, unsigned)
+		FILL_TABLE(textures, count, unsigned)
 	}
 	
 	delete textures;
